@@ -132,14 +132,19 @@ if __name__ == "__main__":
             popup_triggered, alert_text = check_popup(url_with_payload)
             xss_triggered = check_xss(url_with_payload, payload)
 
+            print_in_color(f"URL: {url_with_payload}", Colors.Blue)
+            print_in_color(f"Payload: {payload}", Colors.Cyan)
+
             if popup_triggered:
-                print_in_color(f"URL: {url_with_payload}, Payload: {payload} triggered a popup with alert text: {alert_text}", Colors.Red)
+                print_in_color(f"Result: Triggered a popup with alert text: {alert_text}", Colors.Red)
             elif xss_triggered:
-                print_in_color(f"URL: {url_with_payload}, Payload: {payload}  nothing happened.", Colors.Default)
+                print_in_color("Result: Payload potentially caused XSS", Colors.Default)
             else:
-                print_in_color(f"URL: {url_with_payload}, Payload: {payload} did not trigger a popup or XSS.", Colors.Green)
+                print_in_color("Result: Did not trigger a popup or XSS.", Colors.Green)
             
+            print()  # Add a blank line for readability
             time.sleep(2)
     
     if chrome_driver:
         chrome_driver.quit()
+
