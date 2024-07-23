@@ -4,7 +4,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 import time
-from selenium.common.exceptions import UnexpectedAlertPresentException, NoAlertPresentException
+from selenium.common.exceptions import UnexpectedAlertPresentException, NoAlertPresentException, WebDriverException
 import argparse
 import os
 
@@ -12,8 +12,15 @@ chrome_driver = None
 
 class Colors:
     RESET = "\033[0m"
-    RED = "\033[91m"
-    GREEN = "\033[92m"
+    Red = "\033[91m"
+    Green = "\033[92m"
+    Blue = "\033[94m"
+    Cyan = "\033[96m"
+    Magenta = "\033[95m"
+    White = "\033[97m"
+    Yellow = "\033[93m"
+    Grey = "\033[90m"
+    Default = "\033[99m"
 
 def print_in_color(text, color):
     print(color + text + Colors.RESET)
@@ -60,6 +67,9 @@ def check_popup(url):
             return True, alert_text
         except NoAlertPresentException:
             return False, None
+    except WebDriverException as e:
+        print(f"WebDriverException during popup check: {e}")
+        return False, None
     finally:
         pass
 
@@ -81,8 +91,17 @@ def check_xss(url, payload):
         if marker:
             return True
         return False
-    except Exception as e:
-        print(f"Error during XSS check: {e}")
+    except UnexpectedAlertPresentException:
+        try:
+            alert = driver.switch_to.alert
+            alert_text = alert.text
+            alert.accept()
+            print_in_color(f"Alert Text: {alert_text}", Colors.RED)
+            return False
+        except NoAlertPresentException:
+            return False
+    except WebDriverException as e:
+        print(f"WebDriverException during XSS check: {e}")
         return False
     finally:
         pass
@@ -114,11 +133,11 @@ if __name__ == "__main__":
             xss_triggered = check_xss(url_with_payload, payload)
 
             if popup_triggered:
-                print_in_color(f"URL: {url_with_payload}, Payload: {payload} triggered a popup with alert text: {alert_text}", Colors.RED)
+                print_in_color(f"URL: {url_with_payload}, Payload: {payload} triggered a popup with alert text: {alert_text}", Colors.Red)
             elif xss_triggered:
-                print_in_color(f"URL: {url_with_payload}, Payload: {payload} triggered XSS.", Colors.RED)
+                print_in_color(f"URL: {url_with_payload}, Payload: {payload}  nothing happened.", Colors.Default)
             else:
-                print_in_color(f"URL: {url_with_payload}, Payload: {payload} did not trigger a popup or XSS.", Colors.GREEN)
+                print_in_color(f"URL: {url_with_payload}, Payload: {payload} did not trigger a popup or XSS.", Colors.Green)
             
             time.sleep(2)
     
